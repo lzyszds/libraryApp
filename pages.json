@@ -1,0 +1,61 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		},
+		{
+			"path": "pages/book/index",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		}, {
+			"path": "pages/mine/index",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		}, {
+			"path": "pages/search/index",
+			"style": {
+				"navigationBarTitleText": ""
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationStyle": "custom",
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "图书借阅平台",
+		"navigationBarBackgroundColor": "#FFF",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"color": "#000",
+		"selectedColor": "#5161ce",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [{
+				"iconPath": "static/tabBar/home.png",
+				"selectedIconPath": "static/tabBar/homeHover.png",
+				"text": "首页",
+				"pagePath": "pages/index/index"
+			},
+			{
+				"iconPath": "static/tabBar/book.png",
+				"selectedIconPath": "static/tabBar/bookHover.png",
+				"text": "书城",
+				"pagePath": "pages/book/index"
+			},
+			{
+				"iconPath": "static/tabBar/mine.png",
+				"selectedIconPath": "static/tabBar/mineHover.png",
+				"text": "分类",
+				"pagePath": "pages/mine/index"
+			}
+		]
+
+	},
+	"uniIdRouter": {}
+
+}
