@@ -1,13 +1,13 @@
-const host = "http://192.168.3.63:4090/Api"
+
 const createKey = (path : string, data : any) => `${JSON.stringify(data)}${path}`
 const requestList : Map<string, UniApp.RequestTask> = new Map()
 
-
+export const host = "http://192.168.3.63:4090"
 
 //是否正在加载中
 let loadingBox : null | (() => null) = null
 
-export default (option) => {
+export const http = <T>(option : UniNamespace.RequestOptions) => {
 	//加载动画
 	// if (loading && loadingBox === null) {
 	// 	console.log('开启加载')
@@ -20,16 +20,17 @@ export default (option) => {
 		const requestKey = createKey(option.url, option.data)
 
 		uni.request({
-			url: host + option.url,
+			url: host + "/Api" + option.url,
 			method: option.method,
 			header: option.header || '',
 			timeout: option.timeout || 3000,
 			/** 返回数据类型 */
-			dataType: option.dataType,
+			dataType: option.dataType || 'json',
 			//
-			success: res => {
+			success: (res : any) => {
+				const data : T = res.data
 				//返回数据
-				resolve(res.data)
+				resolve(data)
 			},
 			// 失败
 			fail: err => {

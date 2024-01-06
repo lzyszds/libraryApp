@@ -4,7 +4,7 @@
 			<!-- 这里是状态栏 -->
 		</view>
 		<view class="search">
-			<button @click="focus">
+			<button @tap="focus">
 				<uni-icons type="search" size="13"></uni-icons>
 				斗破苍穹
 			</button>
@@ -32,8 +32,9 @@
 <script setup lang="ts">
 	import { ref } from "vue"
 	import { Book, } from "@/type/BookList"
-	import http from "@/common/http"
-	const host = "http://192.168.3.63:4090"
+	import { http, host } from "@/common/http"
+	import { handleUrl } from "@/common/utils"
+
 	const result = ref<Book[][]>([])
 
 	http({ url: '/Book/getBookList', method: 'GET' })
@@ -64,11 +65,6 @@
 			url: "/pages/search/index",
 			animationType: "pop-in",
 		})
-	}
-	const handleUrl = (url : string) => {
-		if (url) return url.replace("/admin", host)
-		// return url.replace("/admin", "http://localhost:4090")
-
 	}
 </script>
 
@@ -103,11 +99,13 @@
 				border-radius: 10rpx;
 				border: 1px solid transparent;
 				outline: none;
+
 				&:hover {
 					background-color: #fff;
 					color: #888;
 				}
-				&::after{
+
+				&::after {
 					border: none;
 				}
 			}
