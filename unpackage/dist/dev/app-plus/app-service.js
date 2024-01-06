@@ -769,69 +769,113 @@ if (uni.restoreGlobal) {
     );
   }
   const __easycom_0$2 = /* @__PURE__ */ _export_sfc(_sfc_main$j, [["render", _sfc_render$e], ["__scopeId", "data-v-d31e1c47"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uni-icons/components/uni-icons/uni-icons.vue"]]);
-  const createKey = (path, data) => `${JSON.stringify(data)}${path}`;
-  const requestList = /* @__PURE__ */ new Map();
-  const host = "http://192.168.3.63:4090";
-  const http = (option) => {
-    return new Promise((resolve, reject) => {
-      const requestKey = createKey(option.url, option.data);
-      uni.request({
-        url: host + "/Api" + option.url,
-        method: option.method,
-        header: option.header || "",
-        timeout: option.timeout || 3e3,
-        /** 返回数据类型 */
-        dataType: option.dataType || "json",
-        //
-        success: (res) => {
-          const data = res.data;
-          resolve(data);
-        },
-        // 失败
-        fail: (err) => {
-          reject(err);
-        },
-        // 最终执行
-        complete: () => {
-          requestList.delete(requestKey);
-        }
-      });
-    });
-  };
-  const handleUrl = (url2) => {
-    if (url2)
-      return url2.replace("/admin", host);
-  };
-  const ellipsisText = (text, maxLength) => {
-    if (text && text.length > maxLength) {
-      return text.slice(0, maxLength) + "...";
+  const category = {
+    "男频阅读榜": {
+      "科幻": "1_2_8",
+      "都市日常": "1_2_261",
+      "都市修真": "1_2_124",
+      "奇幻仙侠": "1_2_259",
+      "历史古代": "1_2_273",
+      "战神赘婿": "1_2_27",
+      "都市种田": "1_2_263",
+      "传统玄幻": "1_2_258",
+      "历史脑洞": "1_2_272",
+      "悬疑脑洞": "1_2_539",
+      "都市脑洞": "1_2_262",
+      "玄幻脑洞": "1_2_257",
+      "神医": "1_2_26",
+      "悬疑灵异": "1_2_751",
+      "抗战谍战": "1_2_504",
+      "游戏体育": "1_2_746",
+      "衍生同人": "1_2_718"
+    },
+    "男频新书榜": {
+      "科幻": "1_1_8",
+      "都市日常": "1_1_261",
+      "都市修真": "1_1_124",
+      "奇幻仙侠": "1_1_259",
+      "历史古代": "1_1_273",
+      "战神赘婿": "1_1_27",
+      "都市种田": "1_1_263",
+      "传统玄幻": "1_1_258",
+      "历史脑洞": "1_1_272",
+      "悬疑脑洞": "1_1_539",
+      "都市脑洞": "1_1_262",
+      "玄幻脑洞": "1_1_257",
+      "神医": "1_1_26",
+      "悬疑灵异": "1_1_751",
+      "抗战谍战": "1_1_504",
+      "游戏体育": "1_1_746",
+      "衍生同人": "1_1_718"
+    },
+    "女频阅读榜": {
+      "萌宝": "0_2_28",
+      "玄幻言情": "0_2_248",
+      "种田": "0_2_23",
+      "马甲": "0_2_266",
+      "年代": "0_2_79",
+      "现言脑洞": "0_2_267",
+      "宫斗宅斗": "0_2_246",
+      "悬疑脑洞": "0_2_539",
+      "古言脑洞": "0_2_253",
+      "医术": "0_2_247",
+      "快穿": "0_2_24",
+      "青春甜宠": "0_2_749",
+      "豪门爽文": "0_2_745",
+      "悬疑恋爱": "0_2_747",
+      "职场婚恋": "0_2_750",
+      "霸总": "0_2_748"
+    },
+    "女频新书榜": {
+      "萌宝": "0_1_28",
+      "玄幻言情": "0_1_248",
+      "种田": "0_1_23",
+      "马甲": "0_1_266",
+      "年代": "0_1_79",
+      "现言脑洞": "0_1_267",
+      "宫斗宅斗": "0_1_246",
+      "悬疑脑洞": "0_1_539",
+      "古言脑洞": "0_1_253",
+      "医术": "0_1_247",
+      "快穿": "0_1_24",
+      "青春甜宠": "0_1_749",
+      "豪门爽文": "0_1_745",
+      "悬疑恋爱": "0_1_747",
+      "职场婚恋": "0_1_750",
+      "霸总": "0_1_748"
     }
-    return text;
   };
   const _sfc_main$i = /* @__PURE__ */ vue.defineComponent({
     __name: "index",
     setup(__props) {
+      formatAppLog("log", "at pages/index/index.vue:50", category);
       const result = vue.ref([]);
-      http({ url: "/Book/getBookList", method: "GET" }).then((res) => {
+      const hotActive = vue.ref("科幻");
+      const defaultName = "男频阅读榜";
+      vue.watch(() => hotActive.value, async (val) => {
+        const { data } = await getHotList(category[defaultName], val);
+        const book_list = data.data.book_list;
         let index2 = 0;
-        result.value[0] = [];
-        result.value[1] = [];
-        result.value[2] = [];
-        result.value[3] = [];
-        result.value[4] = [];
-        for (let i = 0; i < res.data.data.length; i++) {
+        result.value[index2] = [];
+        for (let i = 0; i < book_list.length; i++) {
           if (i % 4 == 0 && i != 0) {
             index2++;
             result.value[index2] = [];
           }
-          result.value[0].push(res.data.data[i]);
-          result.value[1].push(res.data.data[i]);
-          result.value[2].push(res.data.data[i]);
-          result.value[3].push(res.data.data[i]);
-          result.value[4].push(res.data.data[i]);
+          result.value[index2].push(book_list[i]);
         }
-        formatAppLog("log", "at pages/index/index.vue:60", result.value);
-      });
+        formatAppLog("log", "at pages/index/index.vue:68", book_list);
+      }, { immediate: true });
+      function getHotList(obj, index2) {
+        const str = obj[index2];
+        const strarr = str.split("_");
+        const url1 = "https://fanqienovel.com/api/rank/category/list?app_id=1967&rank_list_type=3&";
+        const url2 = `offset=10&limit=24&category_id=${strarr[2]}&gender=${strarr[0]}&rankMold=${strarr[1]}&rank_version=`;
+        return uni.request({
+          url: url1 + url2,
+          method: "GET"
+        });
+      }
       const focus = () => {
         uni.navigateTo({
           url: "/pages/search/index",
@@ -853,67 +897,103 @@ if (uni.restoreGlobal) {
               vue.createTextVNode(" 斗破苍穹 ")
             ])
           ]),
-          vue.createElementVNode("view", {
-            class: "hot",
-            id: "hot"
-          }, [
-            (vue.openBlock(true), vue.createElementBlock(
-              vue.Fragment,
-              null,
-              vue.renderList(result.value, (items, indexs) => {
-                return vue.openBlock(), vue.createElementBlock("view", {
-                  class: "hot_items",
-                  key: indexs
-                }, [
-                  (vue.openBlock(true), vue.createElementBlock(
-                    vue.Fragment,
-                    null,
-                    vue.renderList(items, (item, index2) => {
-                      return vue.openBlock(), vue.createElementBlock("view", {
-                        class: "item",
-                        key: item.book_id
-                      }, [
-                        vue.createElementVNode("image", {
-                          src: vue.unref(handleUrl)(item.cover)
-                        }, null, 8, ["src"]),
-                        vue.createElementVNode("view", null, [
-                          vue.createElementVNode(
-                            "text",
-                            { class: "index" },
-                            vue.toDisplayString(index2 + 1 + indexs * 4),
-                            1
-                            /* TEXT */
-                          ),
-                          vue.createElementVNode(
-                            "text",
-                            { class: "name" },
-                            vue.toDisplayString(item.book_name),
-                            1
-                            /* TEXT */
-                          )
-                        ])
-                      ]);
-                    }),
-                    128
-                    /* KEYED_FRAGMENT */
-                  ))
-                ]);
-              }),
-              128
-              /* KEYED_FRAGMENT */
-            )),
-            (vue.openBlock(), vue.createElementBlock(
-              vue.Fragment,
-              null,
-              vue.renderList(3, (item) => {
-                return vue.createElementVNode("view", {
-                  class: "hot_item",
-                  key: item
-                });
-              }),
-              64
-              /* STABLE_FRAGMENT */
-            ))
+          vue.createElementVNode("view", { class: "content" }, [
+            vue.createElementVNode("view", { class: "tool" }, [
+              vue.createElementVNode("view", { class: "toolTop" }, [
+                vue.createElementVNode("text", { class: "topTitle" }, "热门推荐"),
+                vue.createElementVNode("text", null, [
+                  vue.createTextVNode("换一换"),
+                  vue.createVNode(_component_uni_icons, {
+                    type: "reload",
+                    size: "16"
+                  })
+                ])
+              ]),
+              vue.createElementVNode("view", { class: "category" }, [
+                (vue.openBlock(true), vue.createElementBlock(
+                  vue.Fragment,
+                  null,
+                  vue.renderList(vue.unref(category)["男频阅读榜"], (item, index2) => {
+                    return vue.openBlock(), vue.createElementBlock("view", {
+                      class: vue.normalizeClass(["item", { "active": index2 == hotActive.value }]),
+                      onClick: ($event) => hotActive.value = index2
+                    }, [
+                      vue.createElementVNode(
+                        "text",
+                        null,
+                        vue.toDisplayString(index2),
+                        1
+                        /* TEXT */
+                      )
+                    ], 10, ["onClick"]);
+                  }),
+                  256
+                  /* UNKEYED_FRAGMENT */
+                ))
+              ])
+            ]),
+            vue.createElementVNode("view", {
+              class: "hot",
+              id: "hot"
+            }, [
+              (vue.openBlock(true), vue.createElementBlock(
+                vue.Fragment,
+                null,
+                vue.renderList(result.value, (items, indexs) => {
+                  return vue.openBlock(), vue.createElementBlock("view", {
+                    class: "hot_items",
+                    key: indexs
+                  }, [
+                    (vue.openBlock(true), vue.createElementBlock(
+                      vue.Fragment,
+                      null,
+                      vue.renderList(items, (item, index2) => {
+                        return vue.openBlock(), vue.createElementBlock("view", {
+                          class: "item",
+                          key: item.bookId
+                        }, [
+                          vue.createElementVNode("image", {
+                            src: item.thumbUri
+                          }, null, 8, ["src"]),
+                          vue.createElementVNode("view", null, [
+                            vue.createElementVNode(
+                              "text",
+                              { class: "index" },
+                              vue.toDisplayString(index2 + 1 + indexs * 4),
+                              1
+                              /* TEXT */
+                            ),
+                            vue.createElementVNode(
+                              "text",
+                              { class: "name" },
+                              vue.toDisplayString(item.bookName),
+                              1
+                              /* TEXT */
+                            )
+                          ])
+                        ]);
+                      }),
+                      128
+                      /* KEYED_FRAGMENT */
+                    ))
+                  ]);
+                }),
+                128
+                /* KEYED_FRAGMENT */
+              )),
+              (vue.openBlock(), vue.createElementBlock(
+                vue.Fragment,
+                null,
+                vue.renderList(3, (item) => {
+                  return vue.createElementVNode("view", {
+                    class: "hot_item",
+                    key: item
+                  });
+                }),
+                64
+                /* STABLE_FRAGMENT */
+              ))
+            ])
           ])
         ]);
       };
@@ -5289,6 +5369,45 @@ if (uni.restoreGlobal) {
     ]);
   }
   const __easycom_5 = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["render", _sfc_render], ["__scopeId", "data-v-c2f1266a"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uni-list/components/uni-list/uni-list.vue"]]);
+  const createKey = (path, data) => `${JSON.stringify(data)}${path}`;
+  const requestList = /* @__PURE__ */ new Map();
+  const host = "http://192.168.3.63:4090";
+  const http = (option) => {
+    return new Promise((resolve, reject) => {
+      const requestKey = createKey(option.url, option.data);
+      uni.request({
+        url: host + "/Api" + option.url,
+        method: option.method,
+        header: option.header || "",
+        timeout: option.timeout || 3e3,
+        /** 返回数据类型 */
+        dataType: option.dataType || "json",
+        //
+        success: (res) => {
+          const data = res.data;
+          resolve(data);
+        },
+        // 失败
+        fail: (err) => {
+          reject(err);
+        },
+        // 最终执行
+        complete: () => {
+          requestList.delete(requestKey);
+        }
+      });
+    });
+  };
+  const handleUrl = (url2) => {
+    if (url2)
+      return url2.replace("/admin", host);
+  };
+  const ellipsisText = (text, maxLength) => {
+    if (text && text.length > maxLength) {
+      return text.slice(0, maxLength) + "...";
+    }
+    return text;
+  };
   var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
   var dayjs_minExports = {};
   var dayjs_min = {

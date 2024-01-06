@@ -1564,31 +1564,6 @@ uni-view[data-v-cf66e016], uni-scroll-view[data-v-cf66e016], uni-swiper-item[dat
 /* 垂直间距 */
 /* 透明度 */
 /* 文章场景相关 */
-/* @font-face {
-  font-family: 'almama';
-  src: url('./almama2.0.ttf');
-} */
-@font-face {
-  font-family: 'dindin';
-  src: url('../../static/font/dindinjinbuti/DingTalk_JinBuTi_Regular.woff2');
-  /* 优先加载 */
-  font-display: swap;
-}
-@font-face {
-  font-family: 'almama';
-  src: url('../../static/font/alibaba/Alimama_ShuHeiTi_Bold.woff2');
-  font-display: swap;
-}
-@font-face {
-  font-family: 'firaCode';
-  src: url('../../static/font/FiraCode.ttf');
-  font-display: swap;
-}
-@font-face {
-  font-family: 'black-Magic';
-  src: url('../../static/font/Black-Magic/Black-Magic-2.ttf');
-  font-display: swap;
-}
 .search {
   height: calc(100vh - 1.5625rem);
   overflow: hidden;

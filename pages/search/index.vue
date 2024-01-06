@@ -152,7 +152,7 @@
 </script>
 
 <style lang="scss">
-	@import url('/static/font/font.css');
+	
 
 	.search {
 		height: calc(100vh - 50rpx);
