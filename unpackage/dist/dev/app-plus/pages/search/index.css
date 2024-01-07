@@ -1569,10 +1569,6 @@ uni-view[data-v-cf66e016], uni-scroll-view[data-v-cf66e016], uni-swiper-item[dat
   overflow: hidden;
   padding: 0.625rem;
 }
-.search .status_bar {
-  height: var(--status-bar-height);
-  width: 100%;
-}
 .search .navTop {
   display: grid;
   grid-template-columns: 1.875rem 1fr 2.5rem;

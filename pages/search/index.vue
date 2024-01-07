@@ -159,10 +159,7 @@
 		overflow: hidden;
 		padding: 20rpx;
 
-		.status_bar {
-			height: var(--status-bar-height);
-			width: 100%;
-		}
+		
 
 		// display: grid;
 		// grid-template-columns: 1fr 100rpx;

@@ -27,3 +27,7 @@
   src: url('static/font/Black-Magic/Black-Magic-2.ttf');
   font-display: swap;
 }
+.status_bar {
+		height: var(--status-bar-height);
+		width: 100%;
+}

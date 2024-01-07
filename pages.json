@@ -1,26 +1,16 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/index/index",
-			"style": {
-				"navigationBarTitleText": ""
-			}
+			"path": "pages/index/index"
 		},
 		{
-			"path": "pages/book/index",
-			"style": {
-				"navigationBarTitleText": ""
-			}
+			"path": "pages/book/index"
 		}, {
-			"path": "pages/mine/index",
-			"style": {
-				"navigationBarTitleText": ""
-			}
+			"path": "pages/mine/index"
 		}, {
-			"path": "pages/search/index",
-			"style": {
-				"navigationBarTitleText": ""
-			}
+			"path": "pages/search/index"
+		}, {
+			"path": "pages/read/index"
 		}
 	],
 	"globalStyle": {
@@ -28,7 +18,10 @@
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "图书借阅平台",
 		"navigationBarBackgroundColor": "#FFF",
-		"backgroundColor": "#F8F8F8"
+		"backgroundColor": "#F8F8F8",
+		"app-plus": {
+			"bounce": "none" //关闭窗口回弹效果
+		}
 	},
 	"tabBar": {
 		"color": "#000",

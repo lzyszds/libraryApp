@@ -5,6 +5,7 @@ export const useStore = defineStore("app", {
 		return {
 			hostUrl: 'http://localhost:4090/Api',
 			// hostUrl: 'http://localhost:4090/Api',
+			bookInfo: {}
 		};
 	},
 })

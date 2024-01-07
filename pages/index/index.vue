@@ -23,14 +23,18 @@
 				</view>
 			</view>
 			<view class="hot" id="hot">
-
 				<view class="hot_items" v-for="(items,indexs) in result" :key="indexs">
-					<view class="item" v-for="(item,index) in items" :key="item.bookId">
+					<view class="item" v-for="(item,index) in items" :key="item.bookId" @tap="readBoot(item)">
 						<image :src="item.thumbUri"></image>
 						<view>
-							<text class="index">{{index+1+indexs*4}}</text>
-							<text class="name">{{item.bookName}}</text>
+							<view>
+								<text class="index">{{index+1+indexs*4}}</text>
+								<text class="name">{{item.bookName}}</text>
+							</view>
+							<text>{{item.read_count}}</text>
+
 						</view>
+
 					</view>
 				</view>
 				<view class="hot_item" v-for="item in 3" :key="item">
@@ -46,7 +50,7 @@
 <script setup lang="ts">
 	import { ref, watch } from "vue"
 	import category from "@/static/category.json"
-
+	import { useStore } from "@/store"
 	console.log(category);
 	const result = ref<any>([])
 	const hotActive = ref("科幻")
@@ -65,7 +69,6 @@
 			result.value![index].push(book_list[i])
 		}
 
-		console.log(book_list);
 	}, { immediate: true })
 
 	function getHotList(obj : any, index : string) {
@@ -89,6 +92,15 @@
 		console.log(index);
 		hotActive.value = index
 	}
+	const readBoot = (item : any) => {
+		const store = useStore()
+		store.bookInfo = item
+		uni.navigateTo({
+			url: `/pages/read/index?bookId=${item.bookId}`,
+			animationType: "fade-in"
+		})
+
+	}
 </script>
 
 <style scoped lang="scss">
@@ -98,10 +110,6 @@
 		height: calc(100vh);
 		background-image: linear-gradient(to right, #ffc3a0 0%, #ffafbd 100%);
 
-		.status_bar {
-			height: var(--status-bar-height);
-			width: 100%;
-		}
 
 		.search {
 			height: 60rpx;
@@ -227,10 +235,10 @@
 
 					.item {
 						width: 340rpx;
-						height: 130rpx;
+						height: 110rpx;
 						display: grid;
-						grid-template-columns: 100rpx 1fr;
-						gap: 24rpx;
+						grid-template-columns: 80rpx 1fr;
+						gap: 14rpx;
 
 						image {
 							width: 100%;
