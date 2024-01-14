@@ -31,7 +31,10 @@
 								<text class="index">{{index+1+indexs*4}}</text>
 								<text class="name">{{item.bookName}}</text>
 							</view>
-							<text>{{item.read_count}}</text>
+							<view style="font-size: 0.8rem;">
+								<uni-icons type="fire-filled" size="17" style="color: red;"></uni-icons>
+								<text>{{numberFormatter(item.read_count)}}</text>
+							</view>
 
 						</view>
 
@@ -51,7 +54,7 @@
 	import { ref, watch } from "vue"
 	import category from "@/static/category.json"
 	import { useStore } from "@/store"
-	console.log(category);
+	import { numberFormatter } from "@/common/utils"
 	const result = ref<any>([])
 	const hotActive = ref("科幻")
 	const defaultName = '男频阅读榜'
@@ -89,17 +92,15 @@
 		})
 	}
 	const changeActive = (index : any) => {
-		console.log(index);
 		hotActive.value = index
 	}
 	const readBoot = (item : any) => {
 		const store = useStore()
 		store.bookInfo = item
 		uni.navigateTo({
-			url: `/pages/read/index?bookId=${item.bookId}`,
+			url: `/pages/read/index`,
 			animationType: "fade-in"
 		})
-
 	}
 </script>
 
@@ -177,7 +178,7 @@
 				}
 
 				.category {
-					height: 60rpx;
+					// height: 60rpx;
 					background-color: #fff;
 					display: flex;
 					gap: 20rpx;
@@ -221,9 +222,7 @@
 				overflow-x: scroll;
 				scroll-snap-type: x proximity;
 
-				&::-webkit-scrollbar {
-					width: 0;
-				}
+
 
 				.hot_items {
 					font-size: .9rem;

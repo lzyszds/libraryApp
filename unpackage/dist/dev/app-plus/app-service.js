@@ -32,21 +32,6 @@ if (uni.restoreGlobal) {
 (function(vue, shared) {
   var _e, _f, _g, _h, _i, _j, _k, _l, _m, _n, _o, _p, _q, _r;
   "use strict";
-  const ON_LOAD = "onLoad";
-  function formatAppLog(type, filename, ...args) {
-    if (uni.__log__) {
-      uni.__log__(type, filename, ...args);
-    } else {
-      console[type].apply(console, [...args, filename]);
-    }
-  }
-  function resolveEasycom(component, easycom) {
-    return shared.isString(component) ? easycom : component;
-  }
-  const createHook = (lifecycle) => (hook, target = vue.getCurrentInstance()) => {
-    !vue.isInSSRComponentSetup && vue.injectHook(lifecycle, hook, target);
-  };
-  const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
   const fontData = [
     {
       "font_class": "arrow-down",
@@ -773,7 +758,22 @@ if (uni.restoreGlobal) {
       /* CLASS, STYLE */
     );
   }
-  const __easycom_0$2 = /* @__PURE__ */ _export_sfc(_sfc_main$k, [["render", _sfc_render$e], ["__scopeId", "data-v-d31e1c47"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uni-icons/components/uni-icons/uni-icons.vue"]]);
+  const __easycom_0$2 = /* @__PURE__ */ _export_sfc(_sfc_main$k, [["render", _sfc_render$e], ["__scopeId", "data-v-d31e1c47"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uni-icons/components/uni-icons/uni-icons.vue"]]);
+  const ON_LOAD = "onLoad";
+  function formatAppLog(type, filename, ...args) {
+    if (uni.__log__) {
+      uni.__log__(type, filename, ...args);
+    } else {
+      console[type].apply(console, [...args, filename]);
+    }
+  }
+  function resolveEasycom(component, easycom) {
+    return shared.isString(component) ? easycom : component;
+  }
+  const createHook = (lifecycle) => (hook, target = vue.getCurrentInstance()) => {
+    !vue.isInSSRComponentSetup && vue.injectHook(lifecycle, hook, target);
+  };
+  const onLoad = /* @__PURE__ */ createHook(ON_LOAD);
   const category = {
     "男频阅读榜": {
       "科幻": "1_2_8",
@@ -2295,10 +2295,63 @@ This will fail in production.`);
       };
     }
   });
+  const createKey = (path, data) => `${JSON.stringify(data)}${path}`;
+  const requestList = /* @__PURE__ */ new Map();
+  const host = "http://192.168.3.63:4090";
+  const http = (option) => {
+    return new Promise((resolve, reject) => {
+      const requestKey = createKey(option.url, option.data);
+      uni.request({
+        url: host + "/Api" + option.url,
+        method: option.method,
+        header: option.header || "",
+        timeout: option.timeout || 3e3,
+        /** 返回数据类型 */
+        dataType: option.dataType || "json",
+        //
+        success: (res) => {
+          const data = res.data;
+          resolve(data);
+        },
+        // 失败
+        fail: (err) => {
+          reject(err);
+        },
+        // 最终执行
+        complete: () => {
+          requestList.delete(requestKey);
+        }
+      });
+    });
+  };
+  const handleUrl = (url2) => {
+    if (url2)
+      return url2.replace("/admin", host);
+  };
+  const ellipsisText = (text, maxLength) => {
+    if (text && text.length > maxLength) {
+      return text.slice(0, maxLength) + "...";
+    }
+    return text;
+  };
+  function numberFormatter(num) {
+    if (num >= 1e8) {
+      return (num / 1e8).toFixed(2) + "亿";
+    } else if (num >= 1e4) {
+      return (num / 1e4).toFixed(2) + "万";
+    } else if (num >= 1e3) {
+      return (num / 1e3).toFixed(2) + "千";
+    } else if (num >= 100) {
+      return (num / 100).toFixed(2) + "百";
+    } else if (num >= 10) {
+      return (num / 10).toFixed(2) + "十";
+    } else {
+      return num + "个";
+    }
+  }
   const _sfc_main$j = /* @__PURE__ */ vue.defineComponent({
     __name: "index",
     setup(__props) {
-      formatAppLog("log", "at pages/index/index.vue:54", category);
       const result = vue.ref([]);
       const hotActive = vue.ref("科幻");
       const defaultName = "男频阅读榜";
@@ -2335,7 +2388,7 @@ This will fail in production.`);
         const store = useStore();
         store.bookInfo = item;
         uni.navigateTo({
-          url: `/pages/read/index?bookId=${item.bookId}`,
+          url: `/pages/read/index`,
           animationType: "fade-in"
         });
       };
@@ -2430,13 +2483,20 @@ This will fail in production.`);
                                 /* TEXT */
                               )
                             ]),
-                            vue.createElementVNode(
-                              "text",
-                              null,
-                              vue.toDisplayString(item.read_count),
-                              1
-                              /* TEXT */
-                            )
+                            vue.createElementVNode("view", { style: { "font-size": "0.8rem" } }, [
+                              vue.createVNode(_component_uni_icons, {
+                                type: "fire-filled",
+                                size: "17",
+                                style: { "color": "red" }
+                              }),
+                              vue.createElementVNode(
+                                "text",
+                                null,
+                                vue.toDisplayString(vue.unref(numberFormatter)(item.read_count)),
+                                1
+                                /* TEXT */
+                              )
+                            ])
                           ])
                         ], 8, ["onClick"]);
                       }),
@@ -2466,7 +2526,7 @@ This will fail in production.`);
       };
     }
   });
-  const PagesIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$j, [["__scopeId", "data-v-1cf27b2a"], ["__file", "H:/web/vue3/毕业设计/libraryApp/pages/index/index.vue"]]);
+  const PagesIndexIndex = /* @__PURE__ */ _export_sfc(_sfc_main$j, [["__scopeId", "data-v-1cf27b2a"], ["__file", "K:/web/vue3/毕业设计/libraryApp/pages/index/index.vue"]]);
   const _sfc_main$i = /* @__PURE__ */ vue.defineComponent({
     __name: "index",
     setup(__props) {
@@ -2511,7 +2571,7 @@ This will fail in production.`);
       };
     }
   });
-  const PagesBookIndex = /* @__PURE__ */ _export_sfc(_sfc_main$i, [["__file", "H:/web/vue3/毕业设计/libraryApp/pages/book/index.vue"]]);
+  const PagesBookIndex = /* @__PURE__ */ _export_sfc(_sfc_main$i, [["__file", "K:/web/vue3/毕业设计/libraryApp/pages/book/index.vue"]]);
   const _sfc_main$h = /* @__PURE__ */ vue.defineComponent({
     __name: "index",
     setup(__props) {
@@ -2520,7 +2580,7 @@ This will fail in production.`);
       };
     }
   });
-  const PagesMineIndex = /* @__PURE__ */ _export_sfc(_sfc_main$h, [["__file", "H:/web/vue3/毕业设计/libraryApp/pages/mine/index.vue"]]);
+  const PagesMineIndex = /* @__PURE__ */ _export_sfc(_sfc_main$h, [["__file", "K:/web/vue3/毕业设计/libraryApp/pages/mine/index.vue"]]);
   const isObject = (val) => val !== null && typeof val === "object";
   const defaultDelimiters = ["{", "}"];
   class BaseFormatter {
@@ -3038,7 +3098,7 @@ This will fail in production.`);
       )) : vue.createCommentVNode("v-if", true)
     ]);
   }
-  const __easycom_1$3 = /* @__PURE__ */ _export_sfc(_sfc_main$g, [["render", _sfc_render$d], ["__scopeId", "data-v-f07ef577"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uni-search-bar/components/uni-search-bar/uni-search-bar.vue"]]);
+  const __easycom_1$3 = /* @__PURE__ */ _export_sfc(_sfc_main$g, [["render", _sfc_render$d], ["__scopeId", "data-v-f07ef577"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uni-search-bar/components/uni-search-bar/uni-search-bar.vue"]]);
   const mpMixin = {};
   function email(value) {
     return /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z0-9]+$/.test(value);
@@ -4118,7 +4178,7 @@ This will fail in production.`);
       /* STYLE */
     );
   }
-  const __easycom_0$1 = /* @__PURE__ */ _export_sfc(_sfc_main$f, [["render", _sfc_render$c], ["__scopeId", "data-v-dcf8cb8f"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uv-line/components/uv-line/uv-line.vue"]]);
+  const __easycom_0$1 = /* @__PURE__ */ _export_sfc(_sfc_main$f, [["render", _sfc_render$c], ["__scopeId", "data-v-dcf8cb8f"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uv-line/components/uv-line/uv-line.vue"]]);
   function colorGradient(startColor = "rgb(0, 0, 0)", endColor = "rgb(255, 255, 255)", step = 10) {
     const startRGB = hexToRgb(startColor, false);
     const startR = startRGB[0];
@@ -4393,7 +4453,7 @@ This will fail in production.`);
       /* CLASS, STYLE */
     )) : vue.createCommentVNode("v-if", true);
   }
-  const __easycom_1$2 = /* @__PURE__ */ _export_sfc(_sfc_main$e, [["render", _sfc_render$b], ["__scopeId", "data-v-29b619ea"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uv-loading-icon/components/uv-loading-icon/uv-loading-icon.vue"]]);
+  const __easycom_1$2 = /* @__PURE__ */ _export_sfc(_sfc_main$e, [["render", _sfc_render$b], ["__scopeId", "data-v-29b619ea"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uv-loading-icon/components/uv-loading-icon/uv-loading-icon.vue"]]);
   class MPAnimation {
     constructor(options, _this) {
       this.options = options;
@@ -4766,7 +4826,7 @@ This will fail in production.`);
       vue.renderSlot(_ctx.$slots, "default")
     ], 14, ["animation"])) : vue.createCommentVNode("v-if", true);
   }
-  const __easycom_4$1 = /* @__PURE__ */ _export_sfc(_sfc_main$d, [["render", _sfc_render$a], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uv-transition/components/uv-transition/uv-transition.vue"]]);
+  const __easycom_4$1 = /* @__PURE__ */ _export_sfc(_sfc_main$d, [["render", _sfc_render$a], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uv-transition/components/uv-transition/uv-transition.vue"]]);
   const props$3 = {
     props: {
       // 是否显示遮罩
@@ -4840,7 +4900,7 @@ This will fail in production.`);
       /* FORWARDED */
     }, 8, ["show", "duration", "custom-style", "onClick", "onTouchmove"]);
   }
-  const __easycom_0 = /* @__PURE__ */ _export_sfc(_sfc_main$c, [["render", _sfc_render$9], ["__scopeId", "data-v-7303e1aa"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uv-overlay/components/uv-overlay/uv-overlay.vue"]]);
+  const __easycom_0 = /* @__PURE__ */ _export_sfc(_sfc_main$c, [["render", _sfc_render$9], ["__scopeId", "data-v-7303e1aa"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uv-overlay/components/uv-overlay/uv-overlay.vue"]]);
   const props$2 = {
     props: {
       bgColor: {
@@ -4884,7 +4944,7 @@ This will fail in production.`);
       /* STYLE */
     );
   }
-  const __easycom_1$1 = /* @__PURE__ */ _export_sfc(_sfc_main$b, [["render", _sfc_render$8], ["__scopeId", "data-v-f5bd6f5a"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uv-status-bar/components/uv-status-bar/uv-status-bar.vue"]]);
+  const __easycom_1$1 = /* @__PURE__ */ _export_sfc(_sfc_main$b, [["render", _sfc_render$8], ["__scopeId", "data-v-f5bd6f5a"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uv-status-bar/components/uv-status-bar/uv-status-bar.vue"]]);
   const _sfc_main$a = {
     name: "uv-safe-bottom",
     mixins: [mpMixin, mixin],
@@ -4915,7 +4975,7 @@ This will fail in production.`);
       /* CLASS, STYLE */
     );
   }
-  const __easycom_2$2 = /* @__PURE__ */ _export_sfc(_sfc_main$a, [["render", _sfc_render$7], ["__scopeId", "data-v-560f16b2"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uv-safe-bottom/components/uv-safe-bottom/uv-safe-bottom.vue"]]);
+  const __easycom_2$2 = /* @__PURE__ */ _export_sfc(_sfc_main$a, [["render", _sfc_render$7], ["__scopeId", "data-v-560f16b2"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uv-safe-bottom/components/uv-safe-bottom/uv-safe-bottom.vue"]]);
   const icons = {
     "uvicon-level": "e68f",
     "uvicon-checkbox-mark": "e659",
@@ -5271,7 +5331,7 @@ This will fail in production.`);
       /* CLASS */
     );
   }
-  const __easycom_3$1 = /* @__PURE__ */ _export_sfc(_sfc_main$9, [["render", _sfc_render$6], ["__scopeId", "data-v-b7a6dd5d"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uv-icon/components/uv-icon/uv-icon.vue"]]);
+  const __easycom_3$1 = /* @__PURE__ */ _export_sfc(_sfc_main$9, [["render", _sfc_render$6], ["__scopeId", "data-v-b7a6dd5d"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uv-icon/components/uv-icon/uv-icon.vue"]]);
   const _sfc_main$8 = {
     name: "uv-popup",
     components: {},
@@ -5694,7 +5754,7 @@ This will fail in production.`);
       /* CLASS, STYLE */
     )) : vue.createCommentVNode("v-if", true);
   }
-  const __easycom_2$1 = /* @__PURE__ */ _export_sfc(_sfc_main$8, [["render", _sfc_render$5], ["__scopeId", "data-v-01a3ad6e"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uv-popup/components/uv-popup/uv-popup.vue"]]);
+  const __easycom_2$1 = /* @__PURE__ */ _export_sfc(_sfc_main$8, [["render", _sfc_render$5], ["__scopeId", "data-v-01a3ad6e"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uv-popup/components/uv-popup/uv-popup.vue"]]);
   const props = {
     props: {
       // 标题
@@ -5988,7 +6048,7 @@ This will fail in production.`);
       /* FORWARDED */
     }, 8, ["zoom", "zIndex", "customStyle", "closeOnClickOverlay", "onChange"]);
   }
-  const __easycom_2 = /* @__PURE__ */ _export_sfc(_sfc_main$7, [["render", _sfc_render$4], ["__scopeId", "data-v-4b4aa5ec"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uv-modal/components/uv-modal/uv-modal.vue"]]);
+  const __easycom_2 = /* @__PURE__ */ _export_sfc(_sfc_main$7, [["render", _sfc_render$4], ["__scopeId", "data-v-4b4aa5ec"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uv-modal/components/uv-modal/uv-modal.vue"]]);
   const _sfc_main$6 = {
     name: "uv-skeletons",
     mixins: [mpMixin, mixin],
@@ -6267,7 +6327,7 @@ This will fail in production.`);
       ]))
     ]);
   }
-  const __easycom_3 = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["render", _sfc_render$3], ["__scopeId", "data-v-cf66e016"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uv-skeletons/components/uv-skeletons/uv-skeletons.vue"]]);
+  const __easycom_3 = /* @__PURE__ */ _export_sfc(_sfc_main$6, [["render", _sfc_render$3], ["__scopeId", "data-v-cf66e016"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uv-skeletons/components/uv-skeletons/uv-skeletons.vue"]]);
   const _sfc_main$5 = {
     name: "UniBadge",
     emits: ["click"],
@@ -6408,7 +6468,7 @@ This will fail in production.`);
       )) : vue.createCommentVNode("v-if", true)
     ]);
   }
-  const __easycom_1 = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["render", _sfc_render$2], ["__scopeId", "data-v-c97cb896"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uni-badge/components/uni-badge/uni-badge.vue"]]);
+  const __easycom_1 = /* @__PURE__ */ _export_sfc(_sfc_main$5, [["render", _sfc_render$2], ["__scopeId", "data-v-c97cb896"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uni-badge/components/uni-badge/uni-badge.vue"]]);
   const _sfc_main$4 = {
     name: "UniListItem",
     emits: ["click", "switchChange"],
@@ -6775,7 +6835,7 @@ This will fail in production.`);
       })) : vue.createCommentVNode("v-if", true)
     ], 14, ["hover-class"]);
   }
-  const __easycom_4 = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["render", _sfc_render$1], ["__scopeId", "data-v-c7524739"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uni-list/components/uni-list-item/uni-list-item.vue"]]);
+  const __easycom_4 = /* @__PURE__ */ _export_sfc(_sfc_main$4, [["render", _sfc_render$1], ["__scopeId", "data-v-c7524739"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uni-list/components/uni-list-item/uni-list-item.vue"]]);
   const _sfc_main$3 = {
     name: "uniList",
     "mp-weixin": {
@@ -6835,46 +6895,7 @@ This will fail in production.`);
       })) : vue.createCommentVNode("v-if", true)
     ]);
   }
-  const __easycom_5 = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["render", _sfc_render], ["__scopeId", "data-v-c2f1266a"], ["__file", "H:/web/vue3/毕业设计/libraryApp/uni_modules/uni-list/components/uni-list/uni-list.vue"]]);
-  const createKey = (path, data) => `${JSON.stringify(data)}${path}`;
-  const requestList = /* @__PURE__ */ new Map();
-  const host = "http://192.168.3.63:4090";
-  const http = (option) => {
-    return new Promise((resolve, reject) => {
-      const requestKey = createKey(option.url, option.data);
-      uni.request({
-        url: host + "/Api" + option.url,
-        method: option.method,
-        header: option.header || "",
-        timeout: option.timeout || 3e3,
-        /** 返回数据类型 */
-        dataType: option.dataType || "json",
-        //
-        success: (res) => {
-          const data = res.data;
-          resolve(data);
-        },
-        // 失败
-        fail: (err) => {
-          reject(err);
-        },
-        // 最终执行
-        complete: () => {
-          requestList.delete(requestKey);
-        }
-      });
-    });
-  };
-  const handleUrl = (url2) => {
-    if (url2)
-      return url2.replace("/admin", host);
-  };
-  const ellipsisText = (text, maxLength) => {
-    if (text && text.length > maxLength) {
-      return text.slice(0, maxLength) + "...";
-    }
-    return text;
-  };
+  const __easycom_5 = /* @__PURE__ */ _export_sfc(_sfc_main$3, [["render", _sfc_render], ["__scopeId", "data-v-c2f1266a"], ["__file", "K:/web/vue3/毕业设计/libraryApp/uni_modules/uni-list/components/uni-list/uni-list.vue"]]);
   var commonjsGlobal = typeof globalThis !== "undefined" ? globalThis : typeof window !== "undefined" ? window : typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : {};
   var dayjs_minExports = {};
   var dayjs_min = {
@@ -7426,40 +7447,95 @@ This will fail in production.`);
       };
     }
   });
-  const PagesSearchIndex = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__file", "H:/web/vue3/毕业设计/libraryApp/pages/search/index.vue"]]);
+  const PagesSearchIndex = /* @__PURE__ */ _export_sfc(_sfc_main$2, [["__file", "K:/web/vue3/毕业设计/libraryApp/pages/search/index.vue"]]);
   const _sfc_main$1 = /* @__PURE__ */ vue.defineComponent({
     __name: "index",
     setup(__props) {
-      vue.reactive({
-        first: true,
-        up: false,
-        down: false
-      });
-      const first = vue.ref(true);
+      const instance = vue.getCurrentInstance();
+      const first = vue.ref(false);
+      const dataInfo = vue.ref();
       const data = vue.ref();
-      onLoad(() => {
+      const sumCountPage = vue.ref(0);
+      onLoad(async () => {
         const store = useStore();
-        data.value = store.bookInfo;
-        formatAppLog("log", "at pages/read/index.vue:53", data.value);
+        dataInfo.value = store.bookInfo;
+        let res = await getContentInfo(dataInfo.value.firstChapterItemId);
+        data.value = res.data.data;
+        data.value.content = handleContentTab(res.data.data.content);
+        await vue.nextTick();
+        sumCountPage.value = await calculateTotalPages();
       });
-      const showFirst = (val) => {
-        first.value = val == "first" ? false : true;
+      const newDate = vue.computed(() => {
+        return (/* @__PURE__ */ new Date()).getHours() + ":" + (/* @__PURE__ */ new Date()).getMinutes();
+      });
+      const showFirst = () => {
+        first.value = false;
       };
-      function numberFormatter(num) {
-        if (num >= 1e8) {
-          return (num / 1e8).toFixed(2) + "亿";
-        } else if (num >= 1e4) {
-          return (num / 1e4).toFixed(2) + "万";
-        } else if (num >= 1e3) {
-          return (num / 1e3).toFixed(2) + "千";
-        } else if (num >= 100) {
-          return (num / 100).toFixed(2) + "百";
-        } else if (num >= 10) {
-          return (num / 10).toFixed(2) + "十";
+      let oldPagex = 0;
+      let currentPage = vue.ref(0);
+      const pageWidth = uni.getSystemInfoSync().windowWidth;
+      const touchstart = (event) => {
+        oldPagex = event.touches[0].clientX;
+      };
+      const touchend = (event) => {
+        const x = event.changedTouches[0].clientX;
+        if (Math.abs(oldPagex - x) == 0) {
+          if (x > pageWidth / 2) {
+            currentPage.value++;
+          } else {
+            currentPage.value = Math.max(0, --currentPage.value);
+          }
         } else {
-          return num + "个";
+          if (oldPagex - x > 0) {
+            currentPage.value++;
+          } else {
+            currentPage.value = Math.max(0, --currentPage.value);
+          }
         }
+        if (currentPage.value - 3 > sumCountPage.value) {
+          formatAppLog("log", "at pages/read/index.vue:111", "下一章");
+        }
+      };
+      async function getContentInfo(id) {
+        const urlhost = "https://novel.snssdk.com/api/novel/book/reader/full/v1/?device_platform=android&parent_enterfrom=novel_channel_search.tab.&aid=2329&platform_id=1&";
+        const param = `group_id=${id}&item_id=${id}`;
+        return await uni.request({
+          method: "GET",
+          url: urlhost + param
+        });
       }
+      function handleContentTab(content) {
+        let tregex = /<div class="tt-title">(.*?)<\/div>/g;
+        let title;
+        let tmatch;
+        while ((tmatch = tregex.exec(content)) !== null) {
+          title = tmatch[1].trim();
+        }
+        var regex = /<p>(.*?)<\/p>/g;
+        var matches = [];
+        var match;
+        while ((match = regex.exec(content)) !== null) {
+          matches.push(match[1].trim());
+        }
+        return {
+          title,
+          matches
+        };
+      }
+      const getNodeInfo = (selecter) => {
+        return new Promise((resolve) => {
+          const query = uni.createSelectorQuery().in(instance);
+          query.select(selecter).boundingClientRect((data2) => {
+            resolve(data2 || { height: 0 });
+          }).exec();
+        });
+      };
+      const calculateTotalPages = async () => {
+        const contentHeight = await getNodeInfo("#readContent_sub");
+        const windowHeight = uni.getSystemInfoSync().windowHeight;
+        const totalPages = Math.ceil(contentHeight.height / windowHeight);
+        return totalPages;
+      };
       return (_ctx, _cache) => {
         const _component_uni_icons = resolveEasycom(vue.resolveDynamicComponent("uni-icons"), __easycom_0$2);
         return vue.openBlock(), vue.createElementBlock(
@@ -7469,8 +7545,9 @@ This will fail in production.`);
             vue.createElementVNode(
               "view",
               {
-                class: vue.normalizeClass(["read", { hide: first.value }]),
-                onClick: _cache[0] || (_cache[0] = ($event) => showFirst("read"))
+                class: "read",
+                onTouchstart: touchstart,
+                onTouchend: touchend
               },
               [
                 vue.createElementVNode("view", { class: "status_bar" }, [
@@ -7480,30 +7557,110 @@ This will fail in production.`);
                   vue.createVNode(_component_uni_icons, {
                     type: "left",
                     size: "15"
-                  })
-                ])
+                  }),
+                  data.value ? (vue.openBlock(), vue.createElementBlock(
+                    "text",
+                    {
+                      key: 0,
+                      class: "subtitle"
+                    },
+                    vue.toDisplayString(data.value.content.title),
+                    1
+                    /* TEXT */
+                  )) : vue.createCommentVNode("v-if", true),
+                  vue.createElementVNode(
+                    "text",
+                    { class: "time" },
+                    vue.toDisplayString(vue.unref(newDate)),
+                    1
+                    /* TEXT */
+                  )
+                ]),
+                data.value ? (vue.openBlock(), vue.createElementBlock("view", { key: 0 }, [
+                  vue.createElementVNode(
+                    "view",
+                    {
+                      class: "readContent",
+                      style: vue.normalizeStyle("transform:translateX(calc(-100vw *" + vue.unref(currentPage) + "))")
+                    },
+                    [
+                      vue.createElementVNode(
+                        "text",
+                        { class: "tt-title" },
+                        vue.toDisplayString(data.value.content.title),
+                        1
+                        /* TEXT */
+                      ),
+                      (vue.openBlock(true), vue.createElementBlock(
+                        vue.Fragment,
+                        null,
+                        vue.renderList(data.value.content.matches, (item) => {
+                          return vue.openBlock(), vue.createElementBlock(
+                            "text",
+                            { class: "p" },
+                            vue.toDisplayString(item),
+                            1
+                            /* TEXT */
+                          );
+                        }),
+                        256
+                        /* UNKEYED_FRAGMENT */
+                      ))
+                    ],
+                    4
+                    /* STYLE */
+                  ),
+                  vue.createElementVNode("scroll-view", {
+                    "scroll-y": "true",
+                    class: "readContent_sub",
+                    id: "readContent_sub"
+                  }, [
+                    vue.createElementVNode("view", null, [
+                      vue.createElementVNode(
+                        "text",
+                        { class: "tt-title" },
+                        vue.toDisplayString(data.value.content.title),
+                        1
+                        /* TEXT */
+                      ),
+                      (vue.openBlock(true), vue.createElementBlock(
+                        vue.Fragment,
+                        null,
+                        vue.renderList(data.value.content.matches, (item) => {
+                          return vue.openBlock(), vue.createElementBlock(
+                            "text",
+                            { class: "p" },
+                            vue.toDisplayString(item),
+                            1
+                            /* TEXT */
+                          );
+                        }),
+                        256
+                        /* UNKEYED_FRAGMENT */
+                      ))
+                    ])
+                  ])
+                ])) : vue.createCommentVNode("v-if", true)
               ],
-              2
-              /* CLASS */
+              32
+              /* HYDRATE_EVENTS */
             ),
             vue.createElementVNode(
               "view",
               {
                 class: vue.normalizeClass(["firstScreen", { hide: !first.value }]),
-                onClick: _cache[1] || (_cache[1] = ($event) => showFirst("first"))
+                onClick: _cache[0] || (_cache[0] = ($event) => showFirst())
               },
               [
-                vue.createElementVNode("view", { class: "status_bar" }, [
-                  vue.createCommentVNode(" 这里是状态栏 ")
-                ]),
+                vue.createElementVNode("view", { class: "status_bar" }),
                 vue.createElementVNode("image", {
                   class: "cover",
-                  src: data.value.thumbUri
+                  src: dataInfo.value.thumbUri
                 }, null, 8, ["src"]),
                 vue.createElementVNode(
                   "text",
                   { class: "title" },
-                  vue.toDisplayString(data.value.bookName),
+                  vue.toDisplayString(dataInfo.value.bookName),
                   1
                   /* TEXT */
                 ),
@@ -7512,7 +7669,7 @@ This will fail in production.`);
                   vue.createElementVNode(
                     "text",
                     null,
-                    vue.toDisplayString(data.value.author),
+                    vue.toDisplayString(dataInfo.value.author),
                     1
                     /* TEXT */
                   )
@@ -7523,7 +7680,7 @@ This will fail in production.`);
                       vue.createElementVNode(
                         "text",
                         null,
-                        vue.toDisplayString(numberFormatter(data.value.read_count)) + "人",
+                        vue.toDisplayString(vue.unref(numberFormatter)(dataInfo.value.read_count)) + "人",
                         1
                         /* TEXT */
                       ),
@@ -7533,14 +7690,14 @@ This will fail in production.`);
                       vue.createElementVNode(
                         "text",
                         null,
-                        vue.toDisplayString(numberFormatter(data.value.wordNumber)) + "字",
+                        vue.toDisplayString(vue.unref(numberFormatter)(dataInfo.value.wordNumber)) + "字",
                         1
                         /* TEXT */
                       ),
                       vue.createElementVNode(
                         "text",
                         null,
-                        vue.toDisplayString(data.value.creationStatus == 1 ? "连载中" : "已完结"),
+                        vue.toDisplayString(dataInfo.value.creationStatus == 1 ? "连载中" : "已完结"),
                         1
                         /* TEXT */
                       )
@@ -7551,7 +7708,7 @@ This will fail in production.`);
                     vue.createElementVNode(
                       "text",
                       null,
-                      vue.toDisplayString(data.value.abstract),
+                      vue.toDisplayString(dataInfo.value.abstract),
                       1
                       /* TEXT */
                     )
@@ -7568,7 +7725,7 @@ This will fail in production.`);
       };
     }
   });
-  const PagesReadIndex = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["__file", "H:/web/vue3/毕业设计/libraryApp/pages/read/index.vue"]]);
+  const PagesReadIndex = /* @__PURE__ */ _export_sfc(_sfc_main$1, [["__file", "K:/web/vue3/毕业设计/libraryApp/pages/read/index.vue"]]);
   __definePage("pages/index/index", PagesIndexIndex);
   __definePage("pages/book/index", PagesBookIndex);
   __definePage("pages/mine/index", PagesMineIndex);
@@ -7581,7 +7738,7 @@ This will fail in production.`);
       };
     }
   };
-  const App = /* @__PURE__ */ _export_sfc(_sfc_main, [["__file", "H:/web/vue3/毕业设计/libraryApp/App.vue"]]);
+  const App = /* @__PURE__ */ _export_sfc(_sfc_main, [["__file", "K:/web/vue3/毕业设计/libraryApp/App.vue"]]);
   function createApp() {
     const app = vue.createVueApp(App);
     const pinia = createPinia();

@@ -1,36 +1,54 @@
 <template>
-
-	<view class="read" :class="{hide:first}" @tap="showFirst('read')">
+	<view class="read" @touchstart="touchstart" @touchend="touchend">
 		<view class="status_bar">
 			<!-- 这里是状态栏 -->
 		</view>
 		<view class="navBar">
 			<uni-icons type="left" size="15"></uni-icons>
+			<text v-if="data" class="subtitle">{{data.content.title}}</text>
+			<text class="time">{{newDate}}</text>
+		</view>
+		<view v-if="data">
+			<view class="readContent" :style="'transform:translateX(calc(-100vw *'+currentPage+'))'">
+				<text class="tt-title">{{data.content.title}}</text>
+				<text class="p" v-for="item in data.content.matches">
+					{{item}}
+				</text>
+			</view>
+			<scroll-view scroll-y="true" class="readContent_sub" id="readContent_sub">
+				<view>
+					<text class="tt-title">{{data.content.title}}</text>
+					<text class="p" v-for="item in data.content.matches">
+						{{item}}
+					</text>
+				</view>
 
+			</scroll-view>
 		</view>
 	</view>
-	<view class="firstScreen" :class="{hide:!first}" @tap="showFirst('first')">
+	<view class="firstScreen" :class="{hide:!first}" @tap="showFirst()">
 		<view class="status_bar">
-			<!-- 这里是状态栏 -->
+
 		</view>
-		<image class="cover" :src="data.thumbUri" />
-		<text class="title">{{data.bookName}}</text>
-		<text class="author">作者：<text>{{data.author}}</text></text>
+		<image class="cover" :src="dataInfo.thumbUri" />
+		<text class="title">{{dataInfo.bookName}}</text>
+		<text class="author">作者：<text>{{dataInfo.author}}</text></text>
 		<view class="bottomMain">
 			<view class="introduce">
 				<view class="read_count">
-					<text>{{numberFormatter(data.read_count)}}人</text>
+					<text>{{numberFormatter(dataInfo.read_count)}}人</text>
 					<text>正在阅读</text>
 				</view>
 				<view class="work_number">
-					<text>{{numberFormatter(data.wordNumber)}}字</text>
-					<text>{{data.creationStatus==1?'连载中':'已完结'}}</text>
+					<text>{{numberFormatter(dataInfo.wordNumber)}}字</text>
+					<text>{{dataInfo.creationStatus==1?'连载中':'已完结'}}</text>
 				</view>
 			</view>
 			<view class="abstract">
 				<text>简介：</text>
-				<text>{{data.abstract}}</text>
+				<text>{{dataInfo.abstract}}</text>
 			</view>
+
 		</view>
 	</view>
 
@@ -38,40 +56,114 @@
 
 <script lang="ts" setup>
 	import { onLoad } from "@dcloudio/uni-app"
-	import { ref, reactive } from "vue";
+	import { ref, computed, getCurrentInstance, nextTick } from "vue";
 	import { useStore } from "@/store";
-	const bootPage = reactive({
-		first: true,
-		up: false,
-		down: false
-	})
-	const first = ref(true)
+	import { numberFormatter } from "@/common/utils"
+	const instance = getCurrentInstance()
+
+	const first = ref(false)
+	const dataInfo = ref()
 	const data = ref()
-	onLoad(() => {
+	const sumCountPage = ref(0)
+	onLoad(async () => {
 		const store = useStore()
-		data.value = store.bookInfo
-		console.log(data.value);
+		dataInfo.value = store.bookInfo
+		let res = await getContentInfo(dataInfo.value.firstChapterItemId) as any
+		data.value = res.data.data
+		data.value.content = handleContentTab(res.data.data.content)
+		await nextTick()
+		sumCountPage.value = await calculateTotalPages()
+
+	})
+	const newDate = computed(() => {
+		return new Date().getHours() + ":" + new Date().getMinutes()
 	})
 
-	const showFirst = (val : string) => {
+	const showFirst = () => {
+		first.value = false
+	}
+	let oldPagex = 0
+	let currentPage = ref(0)
+	const pageWidth = uni.getSystemInfoSync().windowWidth
 
-		first.value = val == 'first' ? false : true
+	const touchstart = (event : any) => {
+		oldPagex = event.touches[0].clientX
+
+	}
+	const touchend = (event : any) => {
+		const x = event.changedTouches[0].clientX
+		if (Math.abs(oldPagex - x) == 0) {
+			if (x > pageWidth / 2) {
+				currentPage.value++
+			} else {
+				currentPage.value = Math.max(0, --currentPage.value)
+			}
+		} else {
+			if (oldPagex - x > 0) {
+				// 滑动到下一页
+				currentPage.value++
+			} else {
+				currentPage.value = Math.max(0, --currentPage.value)
+			}
+		}
+		if (currentPage.value - 3 > sumCountPage.value) {
+			//获取下一章内容
+			console.log("下一章");
+		}
 	}
 
-	function numberFormatter(num : number) {
-		if (num >= 100000000) {
-			return (num / 100000000).toFixed(2) + '亿';
-		} else if (num >= 10000) {
-			return (num / 10000).toFixed(2) + '万';
-		} else if (num >= 1000) {
-			return (num / 1000).toFixed(2) + '千';
-		} else if (num >= 100) {
-			return (num / 100).toFixed(2) + '百';
-		} else if (num >= 10) {
-			return (num / 10).toFixed(2) + '十';
-		} else {
-			return num + '个';
+
+	async function getContentInfo(id : number) {
+		const urlhost = "https://novel.snssdk.com/api/novel/book/reader/full/v1/?device_platform=android&parent_enterfrom=novel_channel_search.tab.&aid=2329&platform_id=1&"
+		const param = `group_id=${id}&item_id=${id}`
+		return await uni.request({
+			method: "GET",
+			url: urlhost + param
+		})
+	}
+
+	function handleContentTab(content : string) {
+
+		// // 提取标题
+		let tregex = /<div class="tt-title">(.*?)<\/div>/g;
+		let title
+		let tmatch;
+
+		while ((tmatch = tregex.exec(content)) !== null) {
+			title = tmatch[1].trim()
 		}
+		// 提取所有的<p>标签中的内容
+		var regex = /<p>(.*?)<\/p>/g;
+		var matches = [];
+		var match;
+
+		while ((match = regex.exec(content)) !== null) {
+			matches.push(match[1].trim());
+		}
+
+		return {
+			title,
+			matches
+		}
+	}
+
+	const getNodeInfo = (selecter : string) : any => {
+		// 获取位置信息并返回
+		return new Promise(resolve => {
+			const query = uni.createSelectorQuery().in(instance);
+			query.select(selecter).boundingClientRect(data => {
+				resolve(data || { height: 0 });
+			}).exec();
+		});
+	}
+
+
+	// 计算总页数
+	const calculateTotalPages = async () => {
+		const contentHeight = await getNodeInfo('#readContent_sub');
+		const windowHeight = uni.getSystemInfoSync().windowHeight;
+		const totalPages = Math.ceil(contentHeight.height / windowHeight);
+		return totalPages
 	};
 </script>
 
@@ -84,10 +176,59 @@
 		height: 100vh;
 		overflow: hidden;
 		transition: .36s;
+		margin: 0;
+		font-family: "alibabaSans";
 
-		&.hide {
-			left: -50rem;
-			z-index: 0;
+		.navBar {
+			height: 44rpx;
+			width: calc(100vw - 80rpx);
+			display: grid;
+			grid-template-columns: 30rpx 1fr 100rpx;
+			align-items: center;
+			margin: 20rpx auto;
+			gap: 10rpx;
+			font-size: .8rem;
+			color: #999;
+
+			.subtitle {
+				overflow-x: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
+			.time {
+				text-align: right;
+			}
+		}
+
+		.readContent {
+			column-count: auto;
+			column-width: calc(100vw - 32px);
+			column-gap: 0;
+			height: calc(100vh - 144rpx);
+			transition: .4s;
+		}
+
+		.readContent_sub {
+			height: 100%;
+			opacity: 0;
+		}
+
+		.tt-title {
+			width: calc(100vw - 80rpx);
+			font-weight: 600;
+			font-size: 2rem;
+			margin: 0 auto;
+			margin-bottom: 1rem;
+			display: block;
+		}
+
+		.p {
+			width: calc(100vw - 80rpx);
+			margin: 40rpx auto;
+			display: block;
+			font-size: 24px;
+			text-indent: 48px;
 		}
 	}
 
@@ -103,7 +244,7 @@
 		background-color: #f8f8f8;
 		gap: .6rem;
 		overflow: hidden;
-		transition: .36s ;
+		transition: .5s;
 		z-index: 3;
 
 		&.hide {

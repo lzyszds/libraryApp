@@ -28,3 +28,9 @@
   src: url('./Black-Magic/Black-Magic-2.ttf');
   font-display: swap;
 }
+
+@font-face {
+  font-family: 'alibabaSans';
+  src: url('./AlibabaSans/Alibaba-PuHuiTi-Regular.ttf');
+  font-display: swap;
+}

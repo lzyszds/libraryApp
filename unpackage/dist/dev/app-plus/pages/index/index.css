@@ -618,7 +618,6 @@
   vertical-align: text-bottom;
 }
 .main .content .tool .category[data-v-1cf27b2a] {
-  height: 1.875rem;
   background-color: #fff;
   display: flex;
   gap: 0.625rem;
@@ -654,9 +653,6 @@
   overflow-x: scroll;
   -webkit-scroll-snap-type: x proximity;
           scroll-snap-type: x proximity;
-}
-.main .content .hot[data-v-1cf27b2a]::-webkit-scrollbar {
-  width: 0;
 }
 .main .content .hot .hot_items[data-v-1cf27b2a] {
   font-size: 0.9rem;

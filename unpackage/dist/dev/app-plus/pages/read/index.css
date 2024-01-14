@@ -563,10 +563,53 @@
   height: 100vh;
   overflow: hidden;
   transition: 0.36s;
+  margin: 0;
+  font-family: "alibabaSans";
 }
-.read.hide {
-  left: -50rem;
-  z-index: 0;
+.read .navBar {
+  height: 1.375rem;
+  width: calc(100vw - 2.5rem);
+  display: grid;
+  grid-template-columns: 0.9375rem 1fr 3.125rem;
+  align-items: center;
+  margin: 0.625rem auto;
+  gap: 0.3125rem;
+  font-size: 0.8rem;
+  color: #999;
+}
+.read .navBar .subtitle {
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.read .navBar .time {
+  text-align: right;
+}
+.read .readContent {
+  column-count: auto;
+  column-width: calc(100vw - 32px);
+  column-gap: 0;
+  height: calc(100vh - 4.5rem);
+  transition: 0.4s;
+}
+.read .readContent_sub {
+  height: 100%;
+  opacity: 0;
+}
+.read .tt-title {
+  width: calc(100vw - 2.5rem);
+  font-weight: 600;
+  font-size: 2rem;
+  margin: 0 auto;
+  margin-bottom: 1rem;
+  display: block;
+}
+.read .p {
+  width: calc(100vw - 2.5rem);
+  margin: 1.25rem auto;
+  display: block;
+  font-size: 24px;
+  text-indent: 48px;
 }
 .firstScreen {
   position: absolute;
@@ -580,7 +623,7 @@
   background-color: #f8f8f8;
   gap: 0.6rem;
   overflow: hidden;
-  transition: 0.36s;
+  transition: 0.5s;
   z-index: 3;
 }
 .firstScreen.hide {

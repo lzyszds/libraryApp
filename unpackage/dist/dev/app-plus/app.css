@@ -27,7 +27,15 @@
   src: url('static/font/Black-Magic/Black-Magic-2.ttf');
   font-display: swap;
 }
+@font-face {
+  font-family: 'alibabaSans';
+  src: url('static/font/AlibabaSans/Alibaba-PuHuiTi-Regular.ttf');
+  font-display: swap;
+}
 .status_bar {
 		height: var(--status-bar-height);
 		width: 100%;
+}
+::-webkit-scrollbar {
+		width: 0;
 }
