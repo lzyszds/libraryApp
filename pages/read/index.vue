@@ -1,26 +1,21 @@
 <template>
-	<view class="read" @touchstart="touchstart" @touchend="touchend">
+	<view class="read" @tap="tapclick" @touchstart="touchstart" @touchend="touchend">
 		<view class="status_bar">
 			<!-- 这里是状态栏 -->
 		</view>
 		<view class="navBar">
 			<uni-icons type="left" size="15"></uni-icons>
-			<text v-if="data" class="subtitle">{{data.content.title}}</text>
+			<text v-if="data" class="subtitle">{{data.title}}</text>
 			<text class="time">{{newDate}}</text>
 		</view>
 		<view v-if="data">
 			<view class="readContent" :style="'transform:translateX(calc(-100vw *'+currentPage+'))'">
-				<text class="tt-title">{{data.content.title}}</text>
-				<text class="p" v-for="item in data.content.matches">
-					{{item}}
-				</text>
+				<!-- <text class="tt-title">{{data.content.title}}</text> -->
+				<text class="p" v-for="item in data.arr" v-html="item"></text>
 			</view>
 			<scroll-view scroll-y="true" class="readContent_sub" id="readContent_sub">
 				<view>
-					<text class="tt-title">{{data.content.title}}</text>
-					<text class="p" v-for="item in data.content.matches">
-						{{item}}
-					</text>
+					<text class="p" v-for="item in data.arr" v-html="item"></text>
 				</view>
 
 			</scroll-view>
@@ -61,18 +56,26 @@
 	import { numberFormatter } from "@/common/utils"
 	const instance = getCurrentInstance()
 
+	const newChapter = ref(1)//当前章节
+
 	const first = ref(false)
 	const dataInfo = ref()
-	const data = ref()
+	const data = ref({
+		title: '',
+		arr: [] as string[]
+	})
 	const sumCountPage = ref(0)
+
+	//获取目录信息
+	const directoryList = ref()
+
 	onLoad(async () => {
+
 		const store = useStore()
 		dataInfo.value = store.bookInfo
-		let res = await getContentInfo(dataInfo.value.firstChapterItemId) as any
-		data.value = res.data.data
-		data.value.content = handleContentTab(res.data.data.content)
-		await nextTick()
-		sumCountPage.value = await calculateTotalPages()
+		const list = await getDirectoryList() as any
+		directoryList.value = list.data.data.allItemIds
+		await initContent()
 
 	})
 	const newDate = computed(() => {
@@ -85,6 +88,20 @@
 	let oldPagex = 0
 	let currentPage = ref(0)
 	const pageWidth = uni.getSystemInfoSync().windowWidth
+
+
+	const tapclick = (event : any) => {
+		const x = event.changedTouches[0].clientX
+		if (x > pageWidth / 2) {
+			currentPage.value++
+		} else {
+			currentPage.value = Math.max(0, --currentPage.value)
+		}
+		if (sumCountPage.value - currentPage.value < 0) {
+			newChapter.value++
+			initContent("1")
+		}
+	}
 
 	const touchstart = (event : any) => {
 		oldPagex = event.touches[0].clientX
@@ -106,13 +123,16 @@
 				currentPage.value = Math.max(0, --currentPage.value)
 			}
 		}
-		if (currentPage.value - 3 > sumCountPage.value) {
-			//获取下一章内容
-			console.log("下一章");
-		}
 	}
-
-
+	async function getDirectoryList() {
+		const urlhost = "https://fanqienovel.com/api/reader/directory/detail?"
+		const param = `bookId=` + dataInfo.value.bookId
+		return await uni.request({
+			method: "GET",
+			url: urlhost + param
+		})
+	}
+	//获取当前章节内容
 	async function getContentInfo(id : number) {
 		const urlhost = "https://novel.snssdk.com/api/novel/book/reader/full/v1/?device_platform=android&parent_enterfrom=novel_channel_search.tab.&aid=2329&platform_id=1&"
 		const param = `group_id=${id}&item_id=${id}`
@@ -122,11 +142,12 @@
 		})
 	}
 
+	//提前内容 迭代处理数据
 	function handleContentTab(content : string) {
 
 		// // 提取标题
 		let tregex = /<div class="tt-title">(.*?)<\/div>/g;
-		let title
+		let title = ""
 		let tmatch;
 
 		while ((tmatch = tregex.exec(content)) !== null) {
@@ -134,17 +155,14 @@
 		}
 		// 提取所有的<p>标签中的内容
 		var regex = /<p>(.*?)<\/p>/g;
-		var matches = [];
+		var matches = [`<span class="tt-title">${title}</span>`];
 		var match;
 
 		while ((match = regex.exec(content)) !== null) {
 			matches.push(match[1].trim());
 		}
 
-		return {
-			title,
-			matches
-		}
+		return { arr: matches, title: title }
 	}
 
 	const getNodeInfo = (selecter : string) : any => {
@@ -165,6 +183,22 @@
 		const totalPages = Math.ceil(contentHeight.height / windowHeight);
 		return totalPages
 	};
+
+	const initContent = async (val ?: string) => {
+		let res = await getContentInfo(directoryList.value[newChapter.value - 1]) as any
+		const content = handleContentTab(res.data.data.content)
+		if (val) {
+			console.log(content.arr, data.value.arr);
+			data.value.arr.push("</br></br></br></br></br></br></br>", ...content.arr)
+			data.value.title = content.title!
+		} else {
+			console.log(content);
+			data.value = content
+
+		}
+		await nextTick()
+		sumCountPage.value = await calculateTotalPages()
+	}
 </script>
 
 <style lang="scss">
@@ -185,7 +219,7 @@
 			display: grid;
 			grid-template-columns: 30rpx 1fr 100rpx;
 			align-items: center;
-			margin: 20rpx auto;
+			margin: 20rpx auto 0;
 			gap: 10rpx;
 			font-size: .8rem;
 			color: #999;
@@ -214,14 +248,7 @@
 			opacity: 0;
 		}
 
-		.tt-title {
-			width: calc(100vw - 80rpx);
-			font-weight: 600;
-			font-size: 2rem;
-			margin: 0 auto;
-			margin-bottom: 1rem;
-			display: block;
-		}
+
 
 		.p {
 			width: calc(100vw - 80rpx);
@@ -229,6 +256,16 @@
 			display: block;
 			font-size: 24px;
 			text-indent: 48px;
+
+			:deep(.tt-title) {
+				width: calc(100vw - 80rpx);
+				font-weight: 600;
+				font-size: 2rem;
+				margin: 0 auto;
+				margin-bottom: 1rem;
+				display: block;
+				text-indent: 0;
+			}
 		}
 	}
 
